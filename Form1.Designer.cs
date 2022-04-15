@@ -35,6 +35,7 @@ namespace WindowsFormsApp1
             this.重新开始ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.导出当前记录ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.关于ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.帮助ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.qQ群ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -56,6 +57,9 @@ namespace WindowsFormsApp1
             this.button6 = new System.Windows.Forms.Button();
             this.button7 = new System.Windows.Forms.Button();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.button14 = new System.Windows.Forms.Button();
+            this.button13 = new System.Windows.Forms.Button();
+            this.button12 = new System.Windows.Forms.Button();
             this.button11 = new System.Windows.Forms.Button();
             this.button10 = new System.Windows.Forms.Button();
             this.label28 = new System.Windows.Forms.Label();
@@ -91,7 +95,7 @@ namespace WindowsFormsApp1
             this.label11 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.button12 = new System.Windows.Forms.Button();
+            this.label29 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.panel3.SuspendLayout();
@@ -148,10 +152,18 @@ namespace WindowsFormsApp1
             // 关于ToolStripMenuItem
             // 
             this.关于ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.帮助ToolStripMenuItem,
             this.qQ群ToolStripMenuItem});
             this.关于ToolStripMenuItem.Name = "关于ToolStripMenuItem";
             this.关于ToolStripMenuItem.Size = new System.Drawing.Size(53, 24);
             this.关于ToolStripMenuItem.Text = "关于";
+            // 
+            // 帮助ToolStripMenuItem
+            // 
+            this.帮助ToolStripMenuItem.Name = "帮助ToolStripMenuItem";
+            this.帮助ToolStripMenuItem.Size = new System.Drawing.Size(122, 26);
+            this.帮助ToolStripMenuItem.Text = "帮助";
+            this.帮助ToolStripMenuItem.Click += new System.EventHandler(this.帮助ToolStripMenuItem_Click);
             // 
             // qQ群ToolStripMenuItem
             // 
@@ -286,6 +298,7 @@ namespace WindowsFormsApp1
             this.textBox2.Multiline = true;
             this.textBox2.Name = "textBox2";
             this.textBox2.ReadOnly = true;
+            this.textBox2.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.textBox2.Size = new System.Drawing.Size(277, 214);
             this.textBox2.TabIndex = 10;
             // 
@@ -339,6 +352,8 @@ namespace WindowsFormsApp1
             // 
             // panel3
             // 
+            this.panel3.Controls.Add(this.button14);
+            this.panel3.Controls.Add(this.button13);
             this.panel3.Controls.Add(this.button12);
             this.panel3.Controls.Add(this.button11);
             this.panel3.Controls.Add(this.button10);
@@ -363,11 +378,41 @@ namespace WindowsFormsApp1
             this.panel3.Controls.Add(this.button1);
             this.panel3.Controls.Add(this.label2);
             this.panel3.Controls.Add(this.label1);
-            this.panel3.Location = new System.Drawing.Point(0, 31);
+            this.panel3.Location = new System.Drawing.Point(3, 31);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(798, 411);
             this.panel3.TabIndex = 17;
             this.panel3.Visible = false;
+            // 
+            // button14
+            // 
+            this.button14.Location = new System.Drawing.Point(326, 200);
+            this.button14.Name = "button14";
+            this.button14.Size = new System.Drawing.Size(49, 23);
+            this.button14.TabIndex = 29;
+            this.button14.Text = "+1天";
+            this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
+            // 
+            // button13
+            // 
+            this.button13.Location = new System.Drawing.Point(320, 64);
+            this.button13.Name = "button13";
+            this.button13.Size = new System.Drawing.Size(55, 37);
+            this.button13.TabIndex = 28;
+            this.button13.Text = "测试";
+            this.button13.UseVisualStyleBackColor = true;
+            this.button13.Click += new System.EventHandler(this.button13_Click);
+            // 
+            // button12
+            // 
+            this.button12.Location = new System.Drawing.Point(187, 46);
+            this.button12.Name = "button12";
+            this.button12.Size = new System.Drawing.Size(93, 29);
+            this.button12.TabIndex = 27;
+            this.button12.Text = "手机购物";
+            this.button12.UseVisualStyleBackColor = true;
+            this.button12.Click += new System.EventHandler(this.button12_Click);
             // 
             // button11
             // 
@@ -730,15 +775,15 @@ namespace WindowsFormsApp1
             this.label9.Text = "身份";
             this.label9.MouseMove += new System.Windows.Forms.MouseEventHandler(this.label9_MouseMove);
             // 
-            // button12
+            // label29
             // 
-            this.button12.Location = new System.Drawing.Point(187, 46);
-            this.button12.Name = "button12";
-            this.button12.Size = new System.Drawing.Size(93, 29);
-            this.button12.TabIndex = 27;
-            this.button12.Text = "手机购物";
-            this.button12.UseVisualStyleBackColor = true;
-            this.button12.Click += new System.EventHandler(this.button12_Click);
+            this.label29.AutoSize = true;
+            this.label29.Location = new System.Drawing.Point(65, 203);
+            this.label29.Name = "label29";
+            this.label29.Size = new System.Drawing.Size(564, 45);
+            this.label29.TabIndex = 20;
+            this.label29.Text = "此demo仅为个人根据自身经历编写，纯属自娱自乐。不包含对现实的任何讽刺与嘲笑\r\n软件中不包含任何与现实地名、人名有关的内容。如有雷同，纯属巧合\r\n如有冒犯，请选" +
+    "择关闭此软件，谢谢";
             // 
             // Form1
             // 
@@ -749,14 +794,17 @@ namespace WindowsFormsApp1
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.无尽按钮);
             this.Controls.Add(this.label19);
+            this.Controls.Add(this.label29);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.肉鸽按钮);
             this.Controls.Add(this.自定义按钮);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.label7);
             this.MainMenuStrip = this.menuStrip1;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "Form1";
-            this.Text = "test";
+            this.Text = "demo";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -835,6 +883,10 @@ namespace WindowsFormsApp1
         private System.Windows.Forms.Button button11;
         private System.Windows.Forms.Button button10;
         private System.Windows.Forms.Button button12;
+        private System.Windows.Forms.Button button13;
+        private System.Windows.Forms.Label label29;
+        private System.Windows.Forms.ToolStripMenuItem 帮助ToolStripMenuItem;
+        private System.Windows.Forms.Button button14;
     }
 }
 

@@ -29,19 +29,20 @@ namespace WindowsFormsApp1
         //set类都是用int,底下的都是实际参与运算的值，不一定要int
 
         //以下参数不直接显示                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-        private int money = 0;
+        public static int money = 0;
         private int id = 0; //身份
         private int bornSpace = 0; //出身地
         private int meat_store = 0;  //初始肉
         private int vege_store = 0;  //初始菜
         private int fastfood_store = 0;  //初始方便食品
         private int basefood_store = 0; // 初始主食
+        private int medicine = 0; //初始药物
         private int job = 0;   //职业
         private int time = 0;  //持续时间
-        private int difficulty = 0;  //严重程度
-        private int spread = 0;  //传播效率
-        private int ideology = 0;  //社会风气
-        private int supply = 0;  //物资供应
+        private float difficulty = 0;  //严重程度
+        private float spread = 0;  //传播效率
+        private float ideology = 0;  //社会风气
+        private float supply = 0;  //物资供应
 
         private int now_day = 1;//当前天数
         string[] now_time = new string[] { "0", "00" };  //当前时间 注意声明方式
@@ -62,23 +63,42 @@ namespace WindowsFormsApp1
             public int day ;
             public int hour ;  //核酸报告的最后有效时间
             public bool infect;  //是否感染
+            public bool infect_check; //是否已经被确认了感染
         }  //核酸相关 不写public其他函数无法访问
         rna_about rna;
 
         
         int worked_time = 0;//七天内已工作次数
         int one_day_work = 0;//单日已工作次数
-        bool sleeping = false;//当前是否处于睡觉状态
-        bool event_choose = false; //随机事件的选择结果
 
+        int deltaTime = 0; //当前事务剩余时间
+        bool busy = false; //当前时间推进函数是否繁忙
+        string main_thing ;  //记录当前玩家行为状态
+        bool event_choose = false; //需要选择的随机事件的选择结果
 
+        bool get_food;//抢到了菜
+        public struct res 
+        {
+            public int meat_num;
+            public int vege_num;
+            public int basefood_num;
+            public int fastfood_num;
+            public int medicine_num;
+            public int hour;//快递运达要多久
+        };   //抢到菜以后要用的结构体
+        public res r1 = new res(); //注意这里也要public
 
-        int which_event = 0;//无法解决线程问题 用这个去区分事件
+        int which_event = 0;//无法解决线程问题 用这个去区分事件 用于手动点选的随机事件
         //0无效 1 核酸检测
+
+        int[][] exchange = new int[2][];//用于交换物资事件
+
 
         int gameMode = 0; //游戏模式 0肉鸽 1普通 2无尽
         public string chuanzhi = "";//用于跨窗口传值
+        private int[] linshi= { 0,0,0,-1}; //用于向买菜窗口传新闻，确保每天新闻不会变
         SoundPlayer bgm;
+
 
         public Form1()
         {
@@ -135,10 +155,16 @@ namespace WindowsFormsApp1
 
         private void mainGame()  //主函数 但实质主函数是时间推进
         {
-
-            textBox2.Text += "\r\n新游戏开始";
+            Form5 f5 = new Form5("\r\n由于疫情，你所在的城市暂时封锁了" +
+                "\r\n游戏按照时间推进"+
+                "\r\n用已有的物资生活到疫情结束吧");
+            f5.Text = "提示";
+            f5.Show();
+            //textBox2.Text += "\r\n新游戏开始";
+            if (job == 4) button4.Text = "外出工作"; //快递的工作是室外
             label6.Text = money.ToString();
             checkState();
+            label26.Text = "当前时间：第1天0:00";
             display_now_store();
         }
 
@@ -217,16 +243,18 @@ namespace WindowsFormsApp1
             data_init();//参数初始化
 
             Random ra = new Random();
-            money = ra.Next(0, 15000);
+            money = ra.Next(0, 20000);
             id = ra.Next(0, 2);
             bornSpace = ra.Next(0, 1);
             meat_store = ra.Next(1, 13);
             vege_store = ra.Next(4, 16);
             fastfood_store = ra.Next(1, 10);
             basefood_store = ra.Next(8, 25);
-            difficulty = ra.Next(0, 2);
-            spread = ra.Next(0, 2);
-            ideology = ra.Next(0, 1);
+            medicine = ra.Next(0, 5);
+            difficulty = (float)Convert.ToDouble(ra.Next(0, 80))/100;
+            spread = (float)Convert.ToDouble(ra.Next(5,70)) / 100;
+            ideology = (float)Convert.ToDouble(ra.Next(5,70)) / 100;
+            supply = (float)Convert.ToDouble(ra.Next(5, 80)) / 100;
             job = ra.Next(0, 7);
             time = ra.Next(10, 50);    //玩家参数准备
 
@@ -260,19 +288,21 @@ namespace WindowsFormsApp1
                 money = money_set;
                 id = id_set; //身份
                 bornSpace = bornSpace_set; //出身地
-                if (store_set == 0)  //初始储备
+                if (store_set == 0)  
                 {
                     meat_store = ra.Next(12, 15);
                     vege_store = ra.Next(12, 20);
                     fastfood_store = ra.Next(8, 10);
                     basefood_store = ra.Next(15, 20);
-                }
+                    medicine = ra.Next(3, 5);
+                }//初始储备
                 if (store_set == 1)
                 {
                     meat_store = ra.Next(7, 10);
                     vege_store = ra.Next(9, 14);
                     fastfood_store = ra.Next(4, 5);
                     basefood_store = ra.Next(12, 16);
+                    medicine = ra.Next(2,4);
                 }
                 if (store_set == 2)
                 {
@@ -280,6 +310,7 @@ namespace WindowsFormsApp1
                     vege_store = ra.Next(5, 8);
                     fastfood_store = ra.Next(0, 2);
                     basefood_store = ra.Next(10, 12);
+                    medicine = ra.Next(0,2);
                 }
                 job = job_set;   //职业
 
@@ -288,9 +319,22 @@ namespace WindowsFormsApp1
                 if (time_set == 2) time = ra.Next(20, 27);
                 if (time_set == 3) time = ra.Next(27, 40);
                 if (time_set == 4) time = 9999;
-                difficulty = difficulty_set;  //严重程度
-                spread = spread_set;  //传播效率
-                ideology = ideology_set;  //社会风气
+
+                if (difficulty_set == 0) difficulty = ra.Next(10,30)/100;
+                if (difficulty_set == 1) difficulty = ra.Next(40,65) / 100;
+                if (difficulty_set == 2) difficulty = ra.Next(70,95) / 100;
+
+                if (spread_set == 0) spread = ra.Next(10, 25) / 100;
+                if (spread_set == 1) spread = ra.Next(30, 45) / 100;
+                if (spread_set == 2) spread = ra.Next(50, 70) / 100;
+
+                if (ideology_set == 0) ideology = ra.Next(0, 35) / 100;
+                if (ideology_set == 1) ideology = ra.Next(25, 70) / 100;
+
+                if (supply_set == 0) supply = ra.Next(0, 10) / 100;
+                if (supply_set == 1) supply = ra.Next(10, 25) / 100;
+                if (supply_set == 2) supply = ra.Next(30, 45) / 100;
+                if (supply_set == 3) supply = ra.Next(40, 65) / 100;
 
                 panel1.Visible = false;
                 panel3.Visible = true;
@@ -457,12 +501,16 @@ namespace WindowsFormsApp1
         {
             string nowState = "";
             nowState = "\r\n" + "金钱:" + money.ToString() + "身份:" + id.ToString() + "出身地:" + bornSpace.ToString() + "肉类储备:" + meat_store.ToString()
-                + "\r\n蔬菜储备:" + vege_store.ToString() + "速食储备:" + fastfood_store.ToString() + "主食储备" + basefood_store.ToString() + "职业:" + job.ToString() +
+                + "\r\n蔬菜储备:" + vege_store.ToString() + "速食储备:" + fastfood_store.ToString() + "主食储备" + basefood_store.ToString() 
+                +"药物:"+medicine.ToString()+ "\r\n职业:" + job.ToString() +
                 "严重程度:" + difficulty.ToString() + "\r\n传播速率:" + spread.ToString() + "社会风气:" + ideology.ToString() + "物资供应:" + supply.ToString()
                 + "\r\n饥饿:" + hungry.ToString() + "劳累:" + tire.ToString()
                 + "心情:" + mental.ToString() + "健康:" + health.ToString()
             + "\r\n感染数:" + infected.ToString();
-            textBox2.Text += nowState;
+            nowState += "\r\n当前时间:" + now_day + "日" + now_time[0] + ":" + now_time[1];
+            textBox2.AppendText(nowState) ;
+            nowState = "\r\n本次总计:" + time.ToString() + "天";
+            textBox2.AppendText(nowState);
         }
 
         private void data_init()  //参数初始化
@@ -480,16 +528,18 @@ namespace WindowsFormsApp1
             rna.report = false;    //核酸证明
             rna.tested= false; //是否做了核酸
             rna.infect = false;
+            rna.infect_check = false;
             worked_time = 0;    //已工作次数
             one_day_work = 0;   //单日已工作次数
 
             label25.Text = ""; //提示框要清空
+            enable_buttons(); //6个按钮要恢复
         }
 
         private void button1_MouseMove(object sender, MouseEventArgs e)  //吃饭提示
         {
             label25.Text = "消耗半小时做饭，半小时吃饭，回复饥饿、健康和精神。" +
-                "\r\n优先做饭，无法做饭时会使用方便食品";
+                "\r\n优先消耗主食和食材做饭\r\n无法做饭时会使用方便食品";
         }
 
         private void button5_MouseMove(object sender, MouseEventArgs e)  //睡觉提示
@@ -504,82 +554,149 @@ namespace WindowsFormsApp1
 
         private void button3_MouseMove(object sender, MouseEventArgs e)  //玩电脑提示
         {
-            label25.Text = "每次消耗一小时玩电脑，精神会回复，会很累";
+            label25.Text = "每次消耗一小时玩电脑，回复心情，消耗精力";
         }
 
-        private void button4_MouseMove(object sender, MouseEventArgs e)  //办公提醒
+        private void button4_MouseMove(object sender, MouseEventArgs e)  //工作提醒
         {
-            label25.Text = "消耗四小时居家工作，只能在白天进行，每天最多两次";
+            if(job==4)
+                label25.Text = "消耗四小时外出送货，只能在白天进行\r\n每天最多两次" +
+                    "\r\n警告:有概率感染\r\n需要有有效核酸证明和外出证才能外出";
+            else
+            label25.Text = "消耗四小时居家工作，只能在白天进行\r\n每天最多两次";
         }
 
         private void button9_MouseMove(object sender, MouseEventArgs e) //外出提醒
         {
-            label25.Text = "外出闲逛，需要有出门证和48小时内核算报告" +
+            label25.Text = "外出闲逛，需要有出门证和48小时内核酸报告" +
                 "\r\n花费三小时在附近逛逛，或许看到什么";
         }
 
-        private void change_nowMoney(int target) //修改当前钱数
+        /*private void change_nowMoney(int target) //修改当前钱数
         {
             money = target;
             label6.Text = money.ToString();
-        }
+        }*/
 
-        private void changeTime(int deltaTime)  //时间推进 只准此函数改时间
+        private void changeTime(int need_time,string thing)  //时间推进函数 
         {
             //只允许这个函数推进时间
+            //原有函数只会机械执行时间推进，一旦遇到早上核酸事件就会出问题
+            //现在函数接收时间和事件申请，不忙的话就会一直执行到完
+            //如果有别的事件依赖时间，在底下while中继续加if进入事件函数就行
+            //记得要在事件函数中设置busy，结束后还要在事件处理函数deal_event()中取消busy
+
+            deltaTime = need_time;   
+            main_thing = thing;//标记玩家处于什么状态        
+                       
             while (deltaTime > 0)  //以半小时为单位时间推进
             {
-                deltaTime -= 30;
-                if (now_time[1] == "00")
+                if (busy) break;
+                else
                 {
-                    now_time[1] = "30";
-                    autoDecrease();
+                    deltaTime -= 30;
+                    if (now_time[1] == "00")
+                    {
+                        now_time[1] = "30";
+                        autoDecrease();
+                    }
+                    else
+                    {
+                        now_time[1] = "00";
+                        now_time[0] = (Convert.ToInt32(now_time[0]) + 1).ToString();
+                        autoDecrease();
+                    }
+                    if (Convert.ToInt32(now_time[0]) > 24) 
+                    {
+                        now_day++;
+                        now_time[0] = (Convert.ToInt32(now_time[0]) - 24).ToString();
+                        mental -= 8;//每过一天心情-8
+                        cacu_infect();//计算今日感染情况
+                        covid_news(); //播报今日疫情
+                    }//过了一天
+                    
+                    label26.Text = "当前时间:第" + now_day.ToString() + "天" + now_time[0].ToString()
+                        + ":" + now_time[1].ToString();
+
+                    //以上是必有的时间推进功能
+                    //以下是各种已经规定好时间的定时事件
+                    checkState();//更新一下状态
+
+                    if(Convert.ToInt32(now_time[0])%2==0 &&now_time[1]=="00")
+                    {
+                        time_randomEvent();
+                    } //两小时触发一次时间推进的随机事件
+
+                    if(now_day%3==0 && now_time[0]=="8")
+                    {
+                        Random ra = new Random();
+                        double raf = ra.NextDouble();
+                        if(raf>0.9)
+                        {
+                            string str = "\r\n援助物资抵达了，小区向住户发放了物资";
+                            Form5 f5 = new Form5(str);
+                            textBox2.AppendText(str) ;
+                            vege_store += ra.Next(2, 4);
+                            meat_store += ra.Next(0, 1);
+                            basefood_store += 5;
+                            fastfood_store += ra.Next(0, 4);
+                        }
+                    } //隔三天 早8点有10%概率送菜
+
+                    if (now_day % 7 == 0)
+                    {
+                        give_money();
+                    }//结算工资
+
+                    if (now_time[0] == "9" && now_time[1] == "00")
+                    {
+                        checkDna();
+                    }//9点核酸检测
+
+                    if(get_food && r1.hour.ToString()==now_time[0] && now_time[1]=="00")
+                    {
+                        get_food = false;
+                        basefood_store += r1.basefood_num;
+                        meat_store += r1.meat_num;
+                        vege_store += r1.vege_num;
+                        fastfood_store += r1.fastfood_num;
+                        medicine += r1.medicine_num;
+
+                        r1.basefood_num = 0;
+                        r1.meat_num = 0;
+                        r1.vege_num = 0;
+                        r1.fastfood_num = 0;
+                        r1.medicine_num = 0;
+
+                        textBox2.AppendText("\r\n你订购的货物已经送达了！");
+                    }//收快递
+
+                    if (Convert.ToInt32(now_time[0]) == 14 && rna.tested)
+                    {
+                        textBox2.AppendText("\r\n核酸报告已经拿到了，结果是阴性");
+                        rna.infect = false; //实际是阴性
+                        rna.infect_check = false; //检查结果也是阴性
+                        rna.report = true; //拿到报告
+                        rna.tested = false; //等待下次捅喉咙
+                        rna.day = now_day + 2;
+                        rna.hour = Convert.ToInt32(now_time[0]); //有效期截止两天后的现在
+                    }//核酸14点拿结果  
                 }
-                else if (now_time[1] == "30")
-                {
-                    now_time[1] = "00";
-                    now_time[0] = (Convert.ToInt32(now_time[0]) + 1).ToString();
-                    autoDecrease();
-                }
-                if (Convert.ToInt32(now_time[0]) > 24) //已经过了一天
-                {
-                    now_day++;
-                    now_time[0] = (Convert.ToInt32(now_time[0]) - 24).ToString();
-                }
-                label26.Text = "当前时间:第" + now_day.ToString() + "天" + now_time[0].ToString()
-                    + ":" + now_time[1].ToString();
+            } 
 
-                //以上是必有的时间推进功能
-                //以下是各种事件
+            if (deltaTime == 0)
+            {
+                end_thing_tip(); 
+                main_thing = "";            
+            }//任务结束后弹提示、清痕迹
 
-
-                if (time == now_day)
-                {
-                    finish();
-                }//时间到了，到结局
-
-                if (now_day % 7 == 0)
-                {
-                    give_money();
-                }//结算工资
-
-                if (now_time[0] == "9" && now_time[1]=="00")
-                {
-                    checkDna();
-                }//每天9点核酸检测
-                //做过核酸的话14点拿到结果
-                if(Convert.ToInt32(now_time[0]) == 14 && rna.tested==true)
-                {
-                    textBox2.AppendText("\r\n核酸报告已经拿到了，结果是阴性");
-                    rna.infect = false;
-                    rna.report = true;
-                    rna.day = now_day+2;
-                    rna.hour = Convert.ToInt32(now_time[0]);
-                }  
-            }
+            if (time == now_day)
+            {
+                finish();
+            }//时间到了就跳结局A-顺利度过
         }
 
-        private void autoDecrease() //随着时间自动扣饥饿和睡眠
+        private void autoDecrease() //自动扣饥饿和睡眠  条件扣/回复心情和健康 
         {
             //不同模式扣除不同
             if (gameMode == 0 || gameMode == 2)
@@ -592,25 +709,38 @@ namespace WindowsFormsApp1
                 hungry -= 4;    //自设模式-3 -2
                 tire -= 3;
             }
+            if(hungry>=75 && tire>=70)
+            {
+                mental += 2;
+                health += 1;
+            } //饱腹时加心情健康
+            if(hungry<=15 ||tire<=10)
+            {
+                mental -= 1;
+                health -= 1;
+            }
+            if (rna.infect) health -= 2; //一旦感染就开始掉健康
         }
 
-        private void checkState()  //更新玩家五属性 发生动作时就应调用
+        private void checkState()  //更新玩家五属性 发生动作时就应调用 含结局B D
         {
-            if (hungry > 80) label4.Text = "饱足";
-            if (hungry <= 80 && hungry > 60) label4.Text = "一般";
-            if (hungry <= 60 && hungry > 35) label4.Text = "饥饿";
-            if (hungry <= 35) label4.Text = "营养不足";
+            if (hungry > 75) label4.Text = "饱足";
+            if (hungry <= 75 && hungry > 60) label4.Text = "一般";
+            if (hungry <= 60 && hungry > 40) label4.Text = "饥饿";
+            if (hungry <= 40 && hungry > 20) label4.Text = "十分饥饿";
+            if (hungry <= 20) label4.Text = "营养不足";
 
-            if (tire > 80) label21.Text = "精神充沛";
-            if (tire <= 80 && tire > 55) label21.Text = "一般";
+            if (tire > 75) label21.Text = "精神充沛";
+            if (tire <= 75 && tire > 55) label21.Text = "一般";
             if (tire <= 55 && tire > 35) label21.Text = "稍有疲倦";
             if (tire <= 35 && tire > 20) label21.Text = "十分疲倦";
             if (tire <= 20) label21.Text = "缺乏睡眠";
 
             if (mental > 80) label3.Text = "愉悦";
             if (mental <= 80 && tire > 45) label3.Text = "一般";
-            if (mental <= 45 && tire > 25) label3.Text = "心情沉重";
-            if (mental <= 25) label3.Text = "接近崩溃";
+            if (mental <= 45 && tire > 23) label3.Text = "心情沉重";
+            if (mental <= 23 && tire > 0) label3.Text = "接近崩溃";
+            if (mental < 0) label3.Text = "崩溃边缘";
 
             if (health > 80) label28.Text = "十分健康";
             if (health <= 80 && tire > 55) label28.Text = "健康";
@@ -618,14 +748,84 @@ namespace WindowsFormsApp1
             if (health <= 25) label28.Text = "需要治疗";
 
             label6.Text = money.ToString();
+            if(money<1000)
+            {
+                textBox2.AppendText("\r\n你的存款不多了，最好想点办法");
+            }   //欠款提醒
+
+            if (health <= -10) finishB(); //健康为-10，结局B
+
+            if (mental <= -20) finishD(); //精神崩溃，结局D
         }
 
-        private void give_money()  //薪资计算
+        private void cacu_infect() //每日0点更新感染者人数
         {
+            //不设置死亡人数
+            if (infected == 0) infected = 1;
+            else                
+            {
+                Random ra = new Random();
+                infected =(int) ( infected * (1 + spread * 12 + ideology * 0.8+difficulty*0.4+ra.NextDouble()*10 )
+                    +non_symptom*(1+spread*17+ideology*6+ra.NextDouble()*10 ) );
+                non_symptom = (int)((infected * (1 + spread * 3 + ra.NextDouble()*10))
+                    + (non_symptom * (2 + spread * 20 + ideology * 12+ ra.NextDouble()*10)));
+            }
+            //这个函数内需要用到社会风气 严重程度 传播速度
+        }
+
+        private void covid_news() //每日疫情信息播报
+        {
+            string str = "今天是封城第" + now_day.ToString() + "天\r\n今日疫情播报:\r\n 感染人数:"
+                + infected.ToString() + "人 无症状者" + non_symptom.ToString()+"人";
+            Form5 f5 = new Form5(str);
+            textBox2.AppendText(str);
+            f5.Show();
+        }
+        //疫情信息考虑挪到手机窗口去 
+
+        private void give_money()  //7天发一次薪水
+        {
+            //无业人员 没薪水  行政人员干多少都一样  厨师和工人只有底薪
+            //快递要想想怎么处理
             textBox2.AppendText("\r\n发放工资");
-            money += 500 * worked_time;
-            worked_time = 0;
+            if (job == 0) money += 1000 * worked_time;
+            else if (job == 1) money += 500 * worked_time; //程序员
+            else if (job == 2 || job == 3) money += 1000; //厨师 工人
+            else if (job == 5) money += 5000;//行政人员
+            else money += 0;
+
+            if(job==6)
+            {
+                textBox2.AppendText("\r\n你的父母担心生活费不够，给你打了2000元");
+                money += 2000;
+            }
+
+            worked_time = 0; //7天内工作次数和单日次数清零
             one_day_work = 0;
+        }
+
+        private void rent_house()//7天收一次房租
+        {
+            if (job == 0||job==6) ; //高管有房 学生住校
+            else if (job >= 1 && job <= 5)
+            {
+                textBox2.AppendText("还房贷时间已到，银行已经自动从你的卡中划走了本次还款4500元");
+                money -= 4500;
+                checkState();
+            }
+            else 
+            {
+                textBox2.AppendText("还房贷时间已到，银行已经自动从你的卡中划走了钱");
+                if (money < 2000)
+                {
+                    finishC();
+                } //结局C，没钱租房 流浪
+                else
+                {
+                    money -= 3000;
+                    checkState();
+                }
+            }//无业只能租房 到时没交就结局C
         }
 
         private void 导出当前记录ToolStripMenuItem_Click(object sender, EventArgs e) //导出记录
@@ -642,7 +842,7 @@ namespace WindowsFormsApp1
         private void button1_Click(object sender, EventArgs e)  //吃饭按钮  
         {
             //做饭必须有主食/方便食品
-            //主食必须配肉/菜   方便食品可以不配 
+            //主食配肉/菜    方便食品可以不配 
             //优先做正餐
             //吃饭减劳累 加饥饿心情 但快餐扣心情
             //做饭吃一小时  方便食品半小时
@@ -651,28 +851,40 @@ namespace WindowsFormsApp1
             {
                 if (basefood_store > 0 && (meat_store > 0 || vege_store > 0))
                 {
-                    textBox2.AppendText("\r\n你用一小时做了一顿饭");
                     basefood_store--;
-                    hungry += 70;
+                    if (job == 2)
+                    {
+                        hungry += 90;
+                        mental += 10;
+                    } //厨师的额外加成
+                    else { hungry += 75; }
+
                     mental += 10;
-                    health += 10;
-                    if (meat_store > 0) meat_store--;   //决定用什么配菜
-                    else vege_store--;
-                    changeTime(60);
-                }
+                    health += 8;
+                    if (meat_store > 0)
+                    {
+                        meat_store--;   //决定用什么配菜
+                        mental += 5; //吃肉的额外加成
+                    }
+                    else 
+                    { vege_store--; }
+
+                    changeTime(60,"food");
+                    //textBox2.AppendText("\r\n你用一小时做了一顿饭");
+                }//正餐
                 else if (fastfood_store > 0)
                 {
                     textBox2.AppendText("\r\n你用半小时吃了点方便食品");
                     fastfood_store--;
-                    hungry += 50;
+                    hungry += 45;
                     mental -= 5;
                     health += 5;
-                    changeTime(30);
-                }
+                    changeTime(30,"food");
+                }//零食
                 else
                 {
                     textBox2.Text += "\r\n你的食物不足，无法做饭！";
-                }
+                } //没食材
             }
             checkState();
         }
@@ -682,27 +894,31 @@ namespace WindowsFormsApp1
             if (tire >= 100) textBox2.AppendText("\r\n精神充沛，无需睡觉");
             else  //睡觉开始前后设置状态
             {
-                sleeping = true;
                 textBox2.AppendText("\r\n你睡了7小时觉");
-                changeTime(420);
+                changeTime(420,"sleep");
                 tire += 80;
                 mental += 30;
-                sleeping = false;
+
             }
             checkState();
         }
 
         private void button2_Click_1(object sender, EventArgs e) //刷手机按钮
         {
-            textBox2.AppendText("\r\n你刷了半小时手机"); //视觉相关应该首位
-            changeTime(30);
+            textBox2.AppendText("\r\n你刷了半小时手机"); 
+            changeTime(30,"phone");
             tire -= 5;           
             checkState();
+            Random ra = new Random();
+            if(ra.NextDouble()>0.9)
+            {
+                phone_randomEvent();  //概率触发事件
+            }
         }
 
         private void button3_Click_1(object sender, EventArgs e) //玩电脑按钮
         {
-            changeTime(60);
+            changeTime(60,"computer");
             tire -= 10;
             mental += 20;
             textBox2.AppendText("\r\n你刷了一小时电脑");
@@ -713,26 +929,78 @@ namespace WindowsFormsApp1
         {
             //每日最多工作2次
             //每7天结一次钱
-            worktime = is_work_time();
-            if (worktime == false)
+            if (job == 2 || job == 3)
             {
-                textBox2.AppendText("\r\n现在还不是工作的时间");
-            }
-            else
+                Form5 f5 = new Form5("你的工作无法在家执行！");
+                textBox2.AppendText("你的工作无法在家执行！");
+                f5.Show();
+            } //厨师 工人无法在家干活
+            else if (job == 6)
             {
-                if (one_day_work >= 2)
-                {
-                    textBox2.AppendText("\r\n今日已经工作两次了");
+                Form5 f5 = new Form5("学生不需要工作");
+                textBox2.AppendText("\r\n学生不需要工作");
+                f5.Show();
+            } //学生不工作
+            else if(job==4)
+            {
+                //能外出的条件:未被查出阳性 有外出证 
+                if(!rna.infect_check && license)
+                {   //核酸在有效期内
+                    if(rna.day<=now_day || (rna.day==now_day&&rna.hour<=Convert.ToInt32(now_time[0])) )
+                    {
+                        worktime = is_work_time();
+                        if(worktime==false)
+                        {
+                            textBox2.AppendText("\r\n现在还不是工作的时间");
+                        }
+                        else
+                        {
+                            if (one_day_work >= 2)
+                            {
+                                textBox2.AppendText("\r\n今日已经工作两次了");
+                            }
+                            else
+                            {
+                                changeTime(240, "work");
+                                mental -= 15;
+                                one_day_work++;
+                                worked_time++;
+                                checkState();
+                            }
+                        }
+                    }
                 }
                 else
                 {
-                    changeTime(240);
-                    textBox2.AppendText("\r\n你工作了四小时");
-                    mental -= 15;
-                    one_day_work++;
-                    checkState();
+                    textBox2.AppendText("\r\n你不具备外出条件!");
                 }
-            }
+            } 
+            //快递员外出工作
+            else
+            {
+                worktime = is_work_time();
+                if (worktime == false)
+                {
+                    textBox2.AppendText("\r\n现在还不是工作的时间");
+                }
+                else
+                {
+                    if (one_day_work >= 2)
+                    {
+                        textBox2.AppendText("\r\n今日已经工作两次了");
+                    }
+                    else
+                    {
+                        changeTime(240, "work");
+                        mental -= 15;
+                        one_day_work++;
+                        worked_time++;
+                        checkState();
+                    }
+                }
+            } //其他职业
+
+            textBox2.AppendText("\r\n最近7天内累计工作:"+worked_time.ToString()+"次");
         }
 
         private void button9_Click(object sender, EventArgs e) //外出按钮
@@ -745,9 +1013,13 @@ namespace WindowsFormsApp1
             {
                 textBox2.AppendText("\r\n你缺少48小时的核酸证明，还不能出门");
             }
-            else
+            else if(rna.infect==true)
             {
-                changeTime(180);
+                textBox2.AppendText("\r\n你确诊了新冠阳性，不能出门");
+            }
+            else 
+            {
+                changeTime(180,"hang");
                 mental += 15; //外出加心情
             }
         }
@@ -758,17 +1030,44 @@ namespace WindowsFormsApp1
             //textBox2.AppendText("\r\n当前时间:"+hour.ToString());
             if (hour >= 8 && hour < 21) return true;
             else return false;
-
         }
 
 
-        private void finish()  //结局  另开一个窗口
+        private void finish()  //结局A  活到最后
         {
-            textBox2.Text = "游戏结束了，你坚持到了最后";
+            textBox2.Text += "\r\n游戏结束了，你坚持到了最后";
             chuanzhi = textBox2.Text.ToString();
-            Form3 f3 = new Form3();
-            f3.str = chuanzhi;    //跨窗口传值
+            Form3 f3 = new Form3(chuanzhi);
+            f3.Controls["button2"].Visible = false;
             f3.ShowDialog();
+            unable_buttons(); //禁用按钮，玩家无法继续玩下去了
+        }
+
+        private void finishB()//结局B  健康为-10
+        {
+            textBox2.Text += "你的身体素质没能让你扛过病症";
+            chuanzhi = textBox2.Text.ToString();
+            Form3 f3 = new Form3(chuanzhi);
+            f3.ShowDialog();
+            unable_buttons(); //禁用按钮，玩家无法继续玩下去了
+        }
+
+        private void finishC()// 结局C 没钱了
+        {
+            textBox2.Text += "你的存款不足以支持你继续住下去\r\n你消失在了街上...";
+            chuanzhi = textBox2.Text.ToString();
+            Form3 f3 = new Form3(chuanzhi);
+            f3.ShowDialog();
+            unable_buttons(); //禁用按钮，玩家无法继续玩下去了
+        }
+
+        private void finishD()//结局D 心情掉到-20，崩溃了
+        {
+            textBox2.AppendText("你的意志力显然不够坚强，打开门一路冲了出去...");
+            chuanzhi = textBox2.Text.ToString();
+            Form3 f3 = new Form3(chuanzhi);
+            f3.Show();
+            unable_buttons();
         }
 
         private void button7_Click(object sender, EventArgs e) //显示储备按钮
@@ -777,45 +1076,161 @@ namespace WindowsFormsApp1
             nowState = "\r\n肉类储备:" + meat_store.ToString()
                 + "\r\n蔬菜储备:" + vege_store.ToString()
                 + "\r\n速食储备:" + fastfood_store.ToString()
-                + "\r\n主食储备:" + basefood_store.ToString();
+                + "\r\n主食储备:" + basefood_store.ToString()
+                + "\r\n药物:" + medicine.ToString();
             textBox2.AppendText(nowState);
         }
 
-        private void time_randomEvent()  //随时间的随机事件触发
-        {
-            //这个函数应该在时间推进中一小时触发一次
+        private void time_randomEvent()  //时间推进的随机事件触发 两小时触发一次
+        {            
             Random ra = new Random();
             int num = 0;
             worktime = is_work_time();
-            if (ra.NextDouble() > 0.5 && worktime)  //晚上就不触发事件了
+            if (worktime &&main_thing!="sleep")  //晚上就不触发事件了
             {
+                textBox2.AppendText("\r\n触发了一次随机事件");
                 num = ra.Next(0, 10);
                 switch (num)
                 {
-                    case 1: { textBox2.AppendText("\r\n事件1"); break; }
-                    case 2: { textBox2.AppendText("\r\n事件2"); break; }
-                    case 3: { textBox2.AppendText("\r\n事件3"); break; }
-                    case 4: { textBox2.AppendText("\r\n事件4"); break; }
-                    case 5: { textBox2.AppendText("\r\n事件5"); break; }
+                    case 1: 
+                        {
+                            if (ra.NextDouble() > 0.6)
+                            {
+                                Form5 f5 = new Form5("\r\n父母给你打了2000元" +
+                                    "\r\n感谢他们吧");
+                                f5.Show();
+                                money += 2000;
+                                mental += 3;
+                                checkState();                                
+                            }
+                            break;
+                        }  //家里给钱
+                    case 2:
+                        {
+                            if (ra.NextDouble() > 0.8)
+                            {
+                                Form5 f5 = new Form5("\r\n额外的蔬菜物资送到了");
+                                f5.Show();
+                                vege_store += ra.Next(2,4);
+                                mental += 3;
+                                checkState();
+                            }
+                            break;
+                        }//额外蔬菜物资
+                    case 3:
+                        {
+                            if (ra.NextDouble() > 0.92)
+                            {
+                                Form5 f5 = new Form5("\r\n额外的肉类物资送到了");
+                                f5.Show();
+                                meat_store += ra.Next(1, 3);
+                                mental += 3;
+                                checkState();
+                            }
+                            break;
+                        }//额外肉类物资
+                    case 4:
+                        {
+                            if (ra.NextDouble() > 0.95)
+                            {
+                                Form5 f5 = new Form5("\r\n家里的储备发霉了一点，看样子不能吃了");
+                                f5.Show();
+                                meat_store -= ra.Next(0, 1);
+                                vege_store -= ra.Next(0, 1);
+                                basefood_store -= ra.Next(0, 2);
+                                mental -= 3;
+                                checkState();
+                            }
+                            break;
+                        }//储存发霉
+                    case 5:
+                        {
+                            if (ra.NextDouble() > 0.9)
+                            {
+                                //肉 菜 主 速   如有需要可以继续拓展
+                                exchange[0][0] = ra.Next(0,2);
+                                exchange[0][1] = ra.Next(1, 2);
+                                exchange[0][2] = ra.Next(1, 3);
+                                exchange[0][3] = ra.Next(0, 2);
+
+                                exchange[1][0] = ra.Next(0, 1);
+                                exchange[1][1] = ra.Next(0, 3);
+                                exchange[1][2] = ra.Next(0, 3);
+                                exchange[1][3] = ra.Next(0, 2);
+
+                                string sss = exchange[0][0] + "份肉 " + exchange[0][1] + "份菜 "
+                                    + exchange[0][2] + "份主食 和" + exchange[0][3] + "份速食 ";
+                                string sss1 = exchange[1][0] + "份肉 " + exchange[1][1] + "份菜 "
+                                    + exchange[1][2] + "份主食 和" + exchange[1][3] + "份速食 ";
+                                Form5 f5 = new Form5("\r\n邻居隔着门，想和你交换一些物资" +
+                                    "\r\n他想用:"+sss+"和你交换:"+sss1+"你想要交换吗？");
+                                f5.Owner = this;
+                                f5.Show();
+                                if (f5.res)
+                                {
+                                    meat_store = meat_store + exchange[0][0] - exchange[1][0];
+                                    vege_store = vege_store + exchange[0][1] - exchange[1][1];
+                                    basefood_store = basefood_store + exchange[0][2] - exchange[1][2];
+                                    fastfood_store = fastfood_store + exchange[0][3] - exchange[1][3];
+                                    mental += 2; ;
+                                    textBox2.AppendText("\r\n你和邻居进行了物资交换");
+                                } //物资交换
+                                else textBox2.AppendText("你拒绝了交换");                              
+                                checkState();
+                            }
+                            break;
+                        }//邻居想换物资
                     case 6: { textBox2.AppendText("\r\n事件6"); break; }
                     case 7: { textBox2.AppendText("\r\n事件7"); break; }
                     case 8: { textBox2.AppendText("\r\n事件8"); break; }
                     case 9: { textBox2.AppendText("\r\n事件9"); break; }
-                    default: { textBox2.AppendText("这个小时无事发生"); break; }
+                    default: { textBox2.AppendText("\r\n这个小时无事发生"); break; }
                 }
             }
 
         }
 
+        private void phone_randomEvent() //刷手机触发的随机事件
+        {
+            Random ra = new Random();
+            switch(ra.Next(0,1))
+            {
+                case 0:
+                    {
+                        textBox2.AppendText("\r\n你刷到了一些搞笑meme图，注意力被转移开了");
+                        mental += 10;
+                        break;
+                    } //娱乐
+                case 1:
+                    {
+                        if (ra.NextDouble() > 0.98)
+                        {
+                            textBox2.AppendText("\r\n你看到传言军队前来支援的消息");
+                            supply += (float)0.15;
+                        }
+                        break;
+                    } //军队支援
+            }
+        }
+
         private void checkDna() //核酸检测事件上 挂在时间推进里
         {
-            if (sleeping == true)
+            if (main_thing=="sleep")
             {
                 textBox2.AppendText("\r\n你错过了早上9点的核酸检测" +
                     "\r\n大白敲门你没听见");
-            }//睡觉则不发生
+            }//睡觉跳过
+            else if(main_thing=="hang")
+            {
+                textBox2.AppendText("\r\n你出门闲逛去了，没有做今天的核酸");
+            }//外出跳过
+            else if(job==4 && main_thing=="work")
+            {
+                textBox2.AppendText("\r\n你出去送快递去了，没有做今天的核酸");
+            }//在外面送快递
             else
             {
+                busy = true; //阻止时间推进 只有事件处理完才能继续
                 unable_buttons();
                 which_event = 1;
                 button10.Visible = true;
@@ -848,7 +1263,7 @@ namespace WindowsFormsApp1
         private void button10_Click(object sender, EventArgs e) //"是"按钮
         {
             event_choose = true;
-            textBox2.AppendText("\r\n调用了一次是按钮");
+            //textBox2.AppendText("\r\n调用了一次是按钮");
             deal_event(); //转到事件处理函数
             enable_buttons(); //恢复6个按钮使用
             button10.Visible = false;
@@ -858,14 +1273,14 @@ namespace WindowsFormsApp1
         private void button11_Click(object sender, EventArgs e)//"否"按钮
         {
             event_choose = false;
-            textBox2.AppendText("\r\n调用了一次否按钮");
+            //textBox2.AppendText("\r\n调用了一次否按钮");
             deal_event();
             enable_buttons();
             button10.Visible = false;
             button11.Visible = false;
         }
 
-        private void deal_event()  //所有需要点选事件的后半段
+        private void deal_event()  //所有f1点选事件的后半段
         {
             switch(which_event)
             {
@@ -874,23 +1289,106 @@ namespace WindowsFormsApp1
                         which_event = 0;
                         if (event_choose)
                         {
-                            rna.tested = true;
-                            textBox2.AppendText("\r\n你已经做了核酸检测，五小时后出报告");
-                        }
+                            rna.tested = true;                           
+                            textBox2.AppendText("\r\n你消耗半小时做了核酸检测，五小时后出报告");
+                            busy = false;
+                            changeTime(deltaTime+30,main_thing); //继续之前的任务
+                        }//做了核酸
                         else
                         {
                             rna.tested = false;
+                            busy = false;
                             textBox2.AppendText("\r\n你没有参加核酸检测，希望没人注意到");
-                        }
+                            changeTime(deltaTime + 30, main_thing); //继续之前的任务
+                        }//没做核酸
                         break;
                     }
             }
         }
 
+        private void end_thing_tip()
+        {
+            switch (main_thing)
+            {
+                case "work":
+                    {
+                        textBox2.AppendText("\r\n你工作了四小时");
+                        break;
+                    }
+                case "food":
+                    {
+                        textBox2.AppendText("\r\n你用一小时自己做了饭");
+                        break;
+                    }
+            }
+        } // 工作、外出等任务，由于会被打断，所以提示文本在这里
+
+
         private void button12_Click(object sender, EventArgs e) //手机买菜按钮
         {
-            Form4 f4 = new Form4(money);            
-            f4.Show();
+            //手机买菜牵扯到两个窗口间的数值同步
+            //跳转入其他窗口
+            //在这里生成好新闻发给窗口4
+            Random ra = new Random();
+            if (linshi[3] == now_day) {; }//同一天的新闻不要变
+            else
+            {
+                linshi[0] = ra.Next(0, 11);
+                linshi[1] = ra.Next(0, 11);
+                while (linshi[1] == linshi[0])
+                {
+                    linshi[1] = ra.Next(0, 11);
+                } //循环是为了防止重复
+                linshi[2] = ra.Next(0, 11);
+                while (linshi[2] == linshi[0] || linshi[2] == linshi[1])
+                {
+                    linshi[2] = ra.Next(0, 11);
+                }
+                linshi[3] = Convert.ToInt32(now_day); //新闻数组最后一位存的其实是天数
+            } //天数变了就换新闻
+
+            Form4 f4 = new Form4(money,now_day,now_time[0],difficulty,spread,ideology,supply,linshi);
+            f4.Owner = this;
+            f4.ShowDialog();
+            money = f4.money_num;//该语句影响数值回传 必须有
+            get_food = f4.food; //判断是否买到了菜
+            if (get_food)
+            {
+                textBox2.AppendText("\r\n你成功抢到了菜!" +
+                    "\r\n大约4小时后菜便可运抵");
+                r1.meat_num = f4.r1.meat_num;
+                r1.vege_num = f4.r1.vege_num;
+                r1.basefood_num = f4.r1.basefood_num;
+                r1.fastfood_num = f4.r1.fastfood_num;
+                r1.medicine_num = f4.r1.medicine_num;
+                r1.hour = f4.r1.hour+Convert.ToInt32(now_time[0]);
+                //f1窗口的r1.hour记录的是送达时间，和f4里面记录送货用时不同
+            } //抢到了东西
+            else textBox2.AppendText("\r\n这次抢购你没能抢到菜");
+            checkState();
+        }
+
+        private void button13_Click(object sender, EventArgs e) //测试按钮 之后无用
+        {
+            display_now_store();
+        }
+
+        private void 帮助ToolStripMenuItem_Click(object sender, EventArgs e) //帮助按钮
+        {
+            Form7 f7 = new Form7();
+            f7.Show();
+        }
+
+        private void button14_Click(object sender, EventArgs e) //+1天按钮  仅用于测试
+        {
+            now_day++;
+            checkState();
         }
     }
 }
+
+
+/*游戏里的随机事件包含时间推进函数里的固定点触发  每两小时随机触发 手机触发三种
+ *   如果需要获取用户选择 有两种写法：1.核酸检测的方法，使用f1上的按钮，函数需要拆成两部分
+ *   2.用form5窗口 之后取结果  缺点是时间未停止
+ * */
