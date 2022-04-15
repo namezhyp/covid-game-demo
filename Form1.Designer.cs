@@ -96,6 +96,7 @@ namespace WindowsFormsApp1
             this.label10 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label29 = new System.Windows.Forms.Label();
+            this.label30 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.panel3.SuspendLayout();
@@ -352,6 +353,7 @@ namespace WindowsFormsApp1
             // 
             // panel3
             // 
+            this.panel3.Controls.Add(this.label30);
             this.panel3.Controls.Add(this.button14);
             this.panel3.Controls.Add(this.button13);
             this.panel3.Controls.Add(this.button12);
@@ -785,6 +787,16 @@ namespace WindowsFormsApp1
             this.label29.Text = "此demo仅为个人根据自身经历编写，纯属自娱自乐。不包含对现实的任何讽刺与嘲笑\r\n软件中不包含任何与现实地名、人名有关的内容。如有雷同，纯属巧合\r\n如有冒犯，请选" +
     "择关闭此软件，谢谢";
             // 
+            // label30
+            // 
+            this.label30.AutoSize = true;
+            this.label30.Location = new System.Drawing.Point(286, 15);
+            this.label30.Name = "label30";
+            this.label30.Size = new System.Drawing.Size(63, 15);
+            this.label30.TabIndex = 30;
+            this.label30.Text = "label30";
+            this.label30.Visible = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -887,6 +899,7 @@ namespace WindowsFormsApp1
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.ToolStripMenuItem 帮助ToolStripMenuItem;
         private System.Windows.Forms.Button button14;
+        private System.Windows.Forms.Label label30;
     }
 }
 

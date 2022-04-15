@@ -103,13 +103,17 @@ namespace WindowsFormsApp1
         public Form1()
         {
             InitializeComponent();
-            ComboBox_init();
-            string path = Environment.CurrentDirectory + "\\test1.wav";
-            showBGM(path);
+            ComboBox_init();           
+            showBGM();
         }
 
-        private void showBGM(string path)//播放BGM
+        private void showBGM()//播放BGM
         {
+            //combine函数可以拼接路径
+            //soundplayer 有个问题 无法获取是否已经播完了
+            Random ra = new Random();
+            string str = "test"+ra.Next(1, 6).ToString()+".wav";
+            string path =Path.Combine(Environment.CurrentDirectory,"sounds",str);
             bgm = new SoundPlayer(path);
             bgm.Play();
         }
@@ -673,16 +677,23 @@ namespace WindowsFormsApp1
 
                     if (Convert.ToInt32(now_time[0]) == 14 && rna.tested)
                     {
-                        textBox2.AppendText("\r\n核酸报告已经拿到了，结果是阴性");
-                        rna.infect = false; //实际是阴性
-                        rna.infect_check = false; //检查结果也是阴性
-                        rna.report = true; //拿到报告
-                        rna.tested = false; //等待下次捅喉咙
-                        rna.day = now_day + 2;
-                        rna.hour = Convert.ToInt32(now_time[0]); //有效期截止两天后的现在
+                        if (rna.infect = false)
+                        {
+                            textBox2.AppendText("\r\n核酸报告已经拿到了，结果是阴性");
+                            rna.infect_check = false; //检查结果也是阴性
+                            rna.report = true; //拿到报告
+                            rna.tested = false; //等待下次捅喉咙
+                            rna.day = now_day + 2;
+                            rna.hour = Convert.ToInt32(now_time[0]); //有效期截止两天后的现在
+                        }
+                        else
+                        {
+                            rna.infect_check = true; //确诊阳性了
+                        }
                     }//核酸14点拿结果  
                 }
             } 
+            //以下是不能在时间推进中反复调用的函数
 
             if (deltaTime == 0)
             {
@@ -694,6 +705,8 @@ namespace WindowsFormsApp1
             {
                 finish();
             }//时间到了就跳结局A-顺利度过
+
+            if (now_day % 4 == 0) showBGM();
         }
 
         private void autoDecrease() //自动扣饥饿和睡眠  条件扣/回复心情和健康 
@@ -792,6 +805,7 @@ namespace WindowsFormsApp1
             else if (job == 1) money += 500 * worked_time; //程序员
             else if (job == 2 || job == 3) money += 1000; //厨师 工人
             else if (job == 5) money += 5000;//行政人员
+            else if (job == 4) money += 1500 * worked_time; //快递员
             else money += 0;
 
             if(job==6)
@@ -949,6 +963,7 @@ namespace WindowsFormsApp1
                     if(rna.day<=now_day || (rna.day==now_day&&rna.hour<=Convert.ToInt32(now_time[0])) )
                     {
                         worktime = is_work_time();
+                        Random ra = new Random();
                         if(worktime==false)
                         {
                             textBox2.AppendText("\r\n现在还不是工作的时间");
@@ -965,6 +980,10 @@ namespace WindowsFormsApp1
                                 mental -= 15;
                                 one_day_work++;
                                 worked_time++;
+                                if(ra.NextDouble()<(0.6-spread))
+                                {
+                                    rna.infect = true;
+                                }//有概率得病
                                 checkState();
                             }
                         }
