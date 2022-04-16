@@ -503,7 +503,7 @@ namespace WindowsFormsApp1
 
         private void display_now_store()  //显示所有信息  仅供调试用
         {
-            string nowState = "";
+           /* string nowState = "";
             nowState = "\r\n" + "金钱:" + money.ToString() + "身份:" + id.ToString() + "出身地:" + bornSpace.ToString() + "肉类储备:" + meat_store.ToString()
                 + "\r\n蔬菜储备:" + vege_store.ToString() + "速食储备:" + fastfood_store.ToString() + "主食储备" + basefood_store.ToString() 
                 +"药物:"+medicine.ToString()+ "\r\n职业:" + job.ToString() +
@@ -514,7 +514,7 @@ namespace WindowsFormsApp1
             nowState += "\r\n当前时间:" + now_day + "日" + now_time[0] + ":" + now_time[1];
             textBox2.AppendText(nowState) ;
             nowState = "\r\n本次总计:" + time.ToString() + "天";
-            textBox2.AppendText(nowState);
+            textBox2.AppendText(nowState);*/
         }
 
         private void data_init()  //参数初始化
@@ -1107,8 +1107,8 @@ namespace WindowsFormsApp1
             worktime = is_work_time();
             if (worktime &&main_thing!="sleep")  //晚上就不触发事件了
             {
-                textBox2.AppendText("\r\n触发了一次随机事件");
-                num = ra.Next(0, 10);
+                //textBox2.AppendText("\r\n触发了一次随机事件");
+                num = ra.Next(1, 9);
                 switch (num)
                 {
                     case 1: 
@@ -1199,10 +1199,10 @@ namespace WindowsFormsApp1
                             }
                             break;
                         }//邻居想换物资
-                    case 6: { textBox2.AppendText("\r\n事件6"); break; }
-                    case 7: { textBox2.AppendText("\r\n事件7"); break; }
-                    case 8: { textBox2.AppendText("\r\n事件8"); break; }
-                    case 9: { textBox2.AppendText("\r\n事件9"); break; }
+                    case 6: { textBox2.AppendText("\r\n没想出来的事件6"); break; }
+                    case 7: { textBox2.AppendText("\r\n没想出来的事件7"); break; }
+                    case 8: { textBox2.AppendText("\r\n没想出来的事件8"); break; }
+                    case 9: { textBox2.AppendText("\r\n没想出来的事件9"); break; }
                     default: { textBox2.AppendText("\r\n这个小时无事发生"); break; }
                 }
             }
@@ -1406,6 +1406,8 @@ namespace WindowsFormsApp1
     }
 }
 
+
+//display_()函数可以打印信息，记得需要时再打开
 
 /*游戏里的随机事件包含时间推进函数里的固定点触发  每两小时随机触发 手机触发三种
  *   如果需要获取用户选择 有两种写法：1.核酸检测的方法，使用f1上的按钮，函数需要拆成两部分

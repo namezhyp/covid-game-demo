@@ -57,6 +57,7 @@ namespace WindowsFormsApp1
             this.button6 = new System.Windows.Forms.Button();
             this.button7 = new System.Windows.Forms.Button();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.label30 = new System.Windows.Forms.Label();
             this.button14 = new System.Windows.Forms.Button();
             this.button13 = new System.Windows.Forms.Button();
             this.button12 = new System.Windows.Forms.Button();
@@ -96,7 +97,6 @@ namespace WindowsFormsApp1
             this.label10 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label29 = new System.Windows.Forms.Label();
-            this.label30 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.panel3.SuspendLayout();
@@ -386,24 +386,38 @@ namespace WindowsFormsApp1
             this.panel3.TabIndex = 17;
             this.panel3.Visible = false;
             // 
+            // label30
+            // 
+            this.label30.AutoSize = true;
+            this.label30.Location = new System.Drawing.Point(286, 15);
+            this.label30.Name = "label30";
+            this.label30.Size = new System.Drawing.Size(63, 15);
+            this.label30.TabIndex = 30;
+            this.label30.Text = "label30";
+            this.label30.Visible = false;
+            // 
             // button14
             // 
+            this.button14.Enabled = false;
             this.button14.Location = new System.Drawing.Point(326, 200);
             this.button14.Name = "button14";
             this.button14.Size = new System.Drawing.Size(49, 23);
             this.button14.TabIndex = 29;
             this.button14.Text = "+1天";
             this.button14.UseVisualStyleBackColor = true;
+            this.button14.Visible = false;
             this.button14.Click += new System.EventHandler(this.button14_Click);
             // 
             // button13
             // 
+            this.button13.Enabled = false;
             this.button13.Location = new System.Drawing.Point(320, 64);
             this.button13.Name = "button13";
             this.button13.Size = new System.Drawing.Size(55, 37);
             this.button13.TabIndex = 28;
             this.button13.Text = "测试";
             this.button13.UseVisualStyleBackColor = true;
+            this.button13.Visible = false;
             this.button13.Click += new System.EventHandler(this.button13_Click);
             // 
             // button12
@@ -787,16 +801,6 @@ namespace WindowsFormsApp1
             this.label29.Text = "此demo仅为个人根据自身经历编写，纯属自娱自乐。不包含对现实的任何讽刺与嘲笑\r\n软件中不包含任何与现实地名、人名有关的内容。如有雷同，纯属巧合\r\n如有冒犯，请选" +
     "择关闭此软件，谢谢";
             // 
-            // label30
-            // 
-            this.label30.AutoSize = true;
-            this.label30.Location = new System.Drawing.Point(286, 15);
-            this.label30.Name = "label30";
-            this.label30.Size = new System.Drawing.Size(63, 15);
-            this.label30.TabIndex = 30;
-            this.label30.Text = "label30";
-            this.label30.Visible = false;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -812,6 +816,7 @@ namespace WindowsFormsApp1
             this.Controls.Add(this.自定义按钮);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.label7);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
