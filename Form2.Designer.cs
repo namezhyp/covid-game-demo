@@ -37,18 +37,18 @@ namespace WindowsFormsApp1
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(84, 78);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(397, 15);
+            this.label1.Size = new System.Drawing.Size(594, 15);
             this.label1.TabIndex = 0;
-            this.label1.Text = "游戏仅供娱乐，请勿与现实相挂钩。如有冒犯请退出此游戏";
+            this.label1.Text = "此demo纯属个人结合自身经历自娱自乐，与其他现实新闻毫无关联，请勿与现实相挂钩。";
             // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(730, 223);
             this.Controls.Add(this.label1);
             this.Name = "Form2";
-            this.Text = "Form2";
+            this.Text = "说明";
             this.ResumeLayout(false);
             this.PerformLayout();
 

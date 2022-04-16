@@ -12,15 +12,26 @@ namespace WindowsFormsApp1
 {
     public partial class Form3 : Form
     {
-        public string str = "";  //跨窗口传值用
-        public Form3()
+        public Form3(string str)
         {
             InitializeComponent();
+            textBox1.Text = str;
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            textBox1.Text = str;
+            
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Form6 f6 = new Form6();
+            f6.Show();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

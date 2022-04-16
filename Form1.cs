@@ -112,7 +112,7 @@ namespace WindowsFormsApp1
             //combine函数可以拼接路径
             //soundplayer 有个问题 无法获取是否已经播完了
             Random ra = new Random();
-            string str = "test"+ra.Next(1, 6).ToString()+".wav";
+            string str = "test"+ra.Next(1, 3).ToString()+".wav";
             string path =Path.Combine(Environment.CurrentDirectory,"sounds",str);
             bgm = new SoundPlayer(path);
             bgm.Play();
